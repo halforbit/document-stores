@@ -1,14 +1,15 @@
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Halforbit.DocumentStores.Tests
 {
-    public class CosmosDbDocumentStoreTests
+    public class MockDocumentStoreTests
     {
         const string _id = "8992c74cc49546d5900f1e30b1df1cb3";
-                
+
         Person_String_Guid _stringGuidPersonA = new Person_String_Guid(
             new Guid(_id),
             "Steve",
@@ -250,24 +251,20 @@ namespace Halforbit.DocumentStores.Tests
             string partitionKeyPath,
             string idPath)
         {
-            return new CosmosDbDocumentStore<TPartitionKey, TId, TDocument>(
-                connectionString: TestValues.CosmosDbConnectionString,
-                database: "document-stores-test",
-                container: containerName,
+            return new MockDocumentStore<TPartitionKey, TId, TDocument>(
                 partitionKeyPath: partitionKeyPath,
-                idPath: idPath);
+                idPath: idPath,
+                documents: new List<TDocument>());
         }
 
         static IDocumentStore<TId, TDocument> GetIdPartitionedStore<TId, TDocument>(
             string containerName,
             string idPath)
         {
-            return new CosmosDbDocumentStore<string, TId, TDocument>(
-                connectionString: TestValues.CosmosDbConnectionString,
-                database: "document-stores-test",
-                container: containerName,
+            return new MockDocumentStore<string, TId, TDocument>(
                 partitionKeyPath: "/id",
-                idPath: idPath);
+                idPath: idPath,
+                documents: new List<TDocument>());
         }
 
         static IDocumentStore<TId, TDocument> GetIdPartitionedStore_ExplicitPk<TId, TDocument>(
@@ -275,23 +272,19 @@ namespace Halforbit.DocumentStores.Tests
             string partitionKeyPath,
             string idPath)
         {
-            return new CosmosDbDocumentStore<TId, TId, TDocument>(
-                connectionString: TestValues.CosmosDbConnectionString,
-                database: "document-stores-test",
-                container: containerName,
+            return new MockDocumentStore<TId, TId, TDocument>(
                 partitionKeyPath: partitionKeyPath ?? "/id",
-                idPath: idPath);
+                idPath: idPath,
+                documents: new List<TDocument>());
         }
 
         static IDocumentStore<TDocument> GetSingletonStore<TDocument>(
             string containerName)
         {
-            return new CosmosDbDocumentStore<string, string, TDocument>(
-                connectionString: TestValues.CosmosDbConnectionString,
-                database: "document-stores-test",
-                container: containerName,
+            return new MockDocumentStore<string, string, TDocument>(
                 partitionKeyPath: string.Empty,
-                idPath: string.Empty);
+                idPath: string.Empty,
+                documents: new List<TDocument>());
         }
     }
 }

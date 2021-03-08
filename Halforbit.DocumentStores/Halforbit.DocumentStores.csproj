@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Halforbit.ObjectTools" Version="1.1.10" />
+  </ItemGroup>
+
 </Project>

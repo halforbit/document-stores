@@ -5,17 +5,70 @@ using System.Threading.Tasks;
 
 namespace Halforbit.DocumentStores
 {
-    public interface IDocumentStore
+    public interface IDocumentStore<TPartitionKey, TId, TDocument>
     {
-        IAsyncEnumerable<TDocument> EnumerateAsync<TDocument>();
+        Task CreateStoreIfNotExistsAsync();
 
-        Task<TDocument> Get<TDocument>(IDocumentKey key);
+        Task UpsertAsync(TDocument document);
 
-        Task Upsert<TDocument>(TDocument document);
+        Task<bool> ExistsAsync(TPartitionKey partitionKey, TId id);
 
-        Task Delete(IDocumentKey key);
+        Task<TDocument> GetAsync(TPartitionKey partitionKey, TId id);
 
-        IQueryable<TDocument> Query<TDocument>();
+        Task DeleteAsync(TPartitionKey partitionKey, TId id);
+
+        (TPartitionKey PartitionKey, TId Id) GetKey(TDocument document);
+
+        IAsyncEnumerable<TResult> QueryAsync<TResult>(
+            Func<IQueryable<TDocument>, IQueryable<TResult>> getQueryable);
+
+        IAsyncEnumerable<TResult> QueryAsync<TResult>(
+            TPartitionKey partitionKey,
+            Func<IQueryable<TDocument>, IQueryable<TResult>> getQueryable);
+
+        IAsyncEnumerable<TResult> QueryAsync<TResult>(
+            string query,
+            params (string Name, object Value)[] arguments);
+
+        IAsyncEnumerable<TResult> QueryAsync<TResult>(
+            TPartitionKey partitionKey,
+            string query,
+            params (string Name, object Value)[] arguments);
+
+        IAsyncEnumerable<TDocument> QueryAsync(
+            string query = default,
+            params (string Name, object Value)[] arguments);
+
+        IAsyncEnumerable<TDocument> QueryAsync(
+            TPartitionKey partitionKey,
+            string query,
+            params (string Name, object Value)[] arguments);
+    }
+
+    public interface IDocumentStore<TId, TDocument>
+    {
+        Task CreateStoreIfNotExistsAsync();
+
+        Task UpsertAsync(TDocument document);
+
+        Task<bool> ExistsAsync(TId id);
+
+        Task<TDocument> GetAsync(TId id);
+
+        IAsyncEnumerable<TResult> QueryAsync<TResult>(
+            Func<IQueryable<TDocument>, IQueryable<TResult>> getQueryable);
+
+        IAsyncEnumerable<TResult> QueryAsync<TResult>(
+            string query,
+            params (string Name, object Value)[] arguments);
+
+        IAsyncEnumerable<TDocument> QueryAsync(
+            string query = default,
+            params (string Name, object Value)[] arguments);
+
+        Task DeleteAsync(TId id);
+
+        TId GetKey(TDocument document);
     }
 
     public interface IDocumentStore<TDocument>
@@ -24,50 +77,10 @@ namespace Halforbit.DocumentStores
 
         Task UpsertAsync(TDocument document);
 
-        Task<TDocument> GetAsync(IDocumentKey<TDocument> key);
+        Task<bool> ExistsAsync();
 
-        IAsyncEnumerable<TDocument> ListAsync(IDocumentKey<TDocument> partitionKey = default);
+        Task<TDocument> GetAsync();
 
-        IQueryable<TDocument> Query(IDocumentKey<TDocument> partitionKey = default);
-
-        Task DeleteAsync(IDocumentKey<TDocument> key);
-
-        IDocumentKey<TDocument> GetKey(TDocument document);
-    }
-
-    public interface IDocumentKey
-    { }
-
-    public interface IDocumentKey<TDocument>
-    {
-        public string Id { get; }
-
-        public string PartitionKey { get; }
-    }
-
-    public class DocumentKey
-    { }
-
-    public class DocumentKey<TDocument> : IDocumentKey<TDocument>
-    { 
-        public DocumentKey(
-            string partitionKey,
-            string id)
-        {
-            PartitionKey = partitionKey;
-            Id = id;
-        }
-
-        public string PartitionKey { get; }
-        public string Id { get; }
-    }
-
-    public static class Extensions
-    {
-        public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(
-            this IQueryable<TSource> source)
-        {
-            throw new NotImplementedException();
-        }
+        Task DeleteAsync();
     }
 }
