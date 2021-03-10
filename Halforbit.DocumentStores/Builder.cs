@@ -83,7 +83,7 @@ namespace Halforbit.DocumentStores
 
     public static class DocumentStoreBuilderExtensions
     {
-        // KEYING /////////////////////////////////////////////////////////////
+        // Keying /////////////////////////////////////////////////////////////
 
         public static IDocumentStoreDescription<TDocument> Document<TDocument>(this INeedsMap target)
         {
