@@ -16,7 +16,8 @@ namespace Halforbit.DocumentStores.Tests
                 .ConnectionString("connection-string")
                 .Database("database")
                 .Container("container")
-                .Map<string, Guid, JObject>("/LastName", "/PersonId")
+                .Document<JObject>()
+                .Key<string, Guid>("/LastName", "/PersonId")
                 .Build();
 
             Assert.IsType<CosmosDbDocumentStore<string, Guid, JObject>>(store);
@@ -41,7 +42,8 @@ namespace Halforbit.DocumentStores.Tests
                 .ConnectionString("connection-string")
                 .Database("database")
                 .Container("container")
-                .Map<string, Guid, Person_String_Guid>(d => d.LastName, d => d.PersonId)
+                .Document<Person_String_Guid>()
+                .Key(d => d.LastName, d => d.PersonId)
                 .Build();
 
             Assert.IsType<CosmosDbDocumentStore<string, Guid, Person_String_Guid>>(store);
@@ -66,7 +68,8 @@ namespace Halforbit.DocumentStores.Tests
                 .ConnectionString("connection-string")
                 .Database("database")
                 .Container("container")
-                .Map<Guid, JObject>("/PersonId")
+                .Document<JObject>()
+                .Key<Guid>("/PersonId")
                 .Build();
 
             Assert.IsType<CosmosDbDocumentStore<string, Guid, JObject>>(store);
@@ -91,7 +94,8 @@ namespace Halforbit.DocumentStores.Tests
                 .ConnectionString("connection-string")
                 .Database("database")
                 .Container("container")
-                .Map<Guid, Person_String_Guid>(d => d.PersonId)
+                .Document<Person_String_Guid>()
+                .Key(d => d.PersonId)
                 .Build();
 
             Assert.IsType<CosmosDbDocumentStore<string, Guid, Person_String_Guid>>(store);
@@ -116,7 +120,7 @@ namespace Halforbit.DocumentStores.Tests
                 .ConnectionString("connection-string")
                 .Database("database")
                 .Container("container")
-                .Map<JObject>()
+                .Document<JObject>()
                 .Build();
 
             Assert.IsType<CosmosDbDocumentStore<string, string, JObject>>(store);
@@ -138,7 +142,8 @@ namespace Halforbit.DocumentStores.Tests
             var store = DocumentStore
                 .Describe()
                 .MockInMemory()
-                .Map<string, Guid, JObject>("/LastName", "/PersonId")
+                .Document<JObject>()
+                .Key<string, Guid>("/LastName", "/PersonId")
                 .Build();
 
             Assert.IsType<MockDocumentStore<string, Guid, JObject>>(store);
@@ -154,7 +159,8 @@ namespace Halforbit.DocumentStores.Tests
             var store = DocumentStore
                 .Describe()
                 .MockInMemory()
-                .Map<Guid, JObject>("/PersonId")
+                .Document<JObject>()
+                .Key<Guid>("/PersonId")
                 .Build();
 
             Assert.IsType<MockDocumentStore<string, Guid, JObject>>(store);
@@ -170,7 +176,7 @@ namespace Halforbit.DocumentStores.Tests
             var store = DocumentStore
                 .Describe()
                 .MockInMemory()
-                .Map<JObject>()
+                .Document<JObject>()
                 .Build();
 
             Assert.IsType<MockDocumentStore<string, string, JObject>>(store);

@@ -1,4 +1,5 @@
 ﻿using Halforbit.ObjectTools.DeferredConstruction;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -82,6 +83,81 @@ namespace Halforbit.DocumentStores
 
     public static class DocumentStoreBuilderExtensions
     {
+        // KEYING /////////////////////////////////////////////////////////////
+
+        public static IDocumentStoreDescription<TDocument> Document<TDocument>(this INeedsMap target)
+        {
+            return new Builder<TDocument>(target.Root
+                .TypeArguments(typeof(string), typeof(string), typeof(TDocument))
+                .Argument("partitionKeyPath", string.Empty)
+                .Argument("idPath", string.Empty));
+        }
+
+        public static IDocumentStoreDescription<TPartitionKey, TId, TDocument> Key<TPartitionKey, TId, TDocument>(
+            this IDocumentStoreDescription<TDocument> target,
+            Expression<Func<TDocument, TPartitionKey>> partitionKey,
+            Expression<Func<TDocument, TId>> id)
+        {
+            var partitionKeyProperty = GetPropertyInfo(partitionKey);
+
+            var idProperty = GetPropertyInfo(id);
+
+            return Key<TPartitionKey, TId, TDocument>(
+                target,
+                $"/{partitionKeyProperty.Name}",
+                $"/{idProperty.Name}");
+        }
+
+        public static IDocumentStoreDescription<TId, TDocument> Key<TId, TDocument>(
+            this IDocumentStoreDescription<TDocument> target,
+            Expression<Func<TDocument, TId>> id,
+            bool partitionKeyIsId = false)
+        {
+            var idProperty = GetPropertyInfo(id);
+
+            return Key<TId, TDocument>(
+                target, 
+                $"/{idProperty.Name}", 
+                partitionKeyIsId);
+        }
+
+        static IDocumentStoreDescription<TPartitionKey, TId, TDocument> Key<TPartitionKey, TId, TDocument>(
+            this IDocumentStoreDescription<TDocument> target,
+            string partitionKeyPath,
+            string idPath)
+        {
+            return new Builder<TPartitionKey, TId, TDocument>(target.Root
+                .TypeArguments(typeof(string), typeof(TId), typeof(TDocument))
+                .Argument("partitionKeyPath", partitionKeyPath)
+                .Argument("idPath", idPath));
+        }
+
+        static IDocumentStoreDescription<TId, TDocument> Key<TId, TDocument>(
+            this IDocumentStoreDescription<TDocument> target,
+            string idPath,
+            bool partitionKeyIsId = false)
+        {
+            return new Builder<TId, TDocument>(target.Root
+                .TypeArguments(typeof(string), typeof(TId), typeof(TDocument))
+                .Argument("partitionKeyPath", partitionKeyIsId ? idPath : "/id")
+                .Argument("idPath", idPath));
+        }
+                
+        public static IDocumentStoreDescription<TPartitionKey, TId, JObject> Key<TPartitionKey, TId>(
+            this IDocumentStoreDescription<JObject> target,
+            string partitionKeyPath,
+            string idPath)
+        {
+            return Key<TPartitionKey, TId, JObject>(target, partitionKeyPath, idPath);
+        }
+
+        public static IDocumentStoreDescription<TId, JObject> Key<TId>(
+            this IDocumentStoreDescription<JObject> target,
+            string idPath)
+        {
+            return Key<TId, JObject>(target, idPath);
+        }
+
         // Mock ///////////////////////////////////////////////////////////////
 
         public static INeedsMap MockInMemory(
@@ -95,64 +171,6 @@ namespace Halforbit.DocumentStores
             IEnumerable<TDocument> documents)
         {
             return new Builder(target.Root.Argument("documents", documents));
-        }
-
-        // Mapping ////////////////////////////////////////////////////////////
-
-        public static IDocumentStoreDescription<TPartitionKey, TId, TDocument> Map<TPartitionKey, TId, TDocument>(
-            this INeedsMap target,
-            string partitionKeyPath,
-            string idPath)
-        {
-            return new Builder<TPartitionKey, TId, TDocument>(target.Root
-                .TypeArguments(typeof(TPartitionKey), typeof(TId), typeof(TDocument))
-                .Argument("partitionKeyPath", partitionKeyPath)
-                .Argument("idPath", idPath));
-        }
-
-        public static IDocumentStoreDescription<TPartitionKey, TId, TDocument> Map<TPartitionKey, TId, TDocument>(
-            this INeedsMap target,
-            Expression<Func<TDocument, TPartitionKey>> partitionKey,
-            Expression<Func<TDocument, TId>> id)
-        {
-            var partitionKeyProperty = GetPropertyInfo(partitionKey);
-
-            var idProperty = GetPropertyInfo(id);
-
-            return Map<TPartitionKey, TId, TDocument>(
-                target,
-                $"/{partitionKeyProperty.Name}",
-                $"/{idProperty.Name}");
-        }
-
-        public static IDocumentStoreDescription<TId, TDocument> Map<TId, TDocument>(
-            this INeedsMap target,
-            string idPath)
-        {
-            return new Builder<TId, TDocument>(target.Root
-                .TypeArguments(typeof(string), typeof(TId), typeof(TDocument))
-                .Argument("partitionKeyPath", "/id")
-                .Argument("idPath", idPath));
-        }
-
-        public static IDocumentStoreDescription<TId, TDocument> Map<TId, TDocument>(
-            this INeedsMap target,
-            Expression<Func<TDocument, TId>> id)
-        {
-            var idProperty = GetPropertyInfo(id);
-
-            return Map<TId, TDocument>(
-                target,
-                $"/{idProperty.Name}");
-        }
-
-        public static IDocumentStoreDescription<TDocument> Map<TDocument>(
-            this INeedsMap target)
-        {
-            return new Builder<TDocument>(target.Root
-                .TypeArguments(typeof(string), typeof(string), typeof(TDocument))
-                .Argument("partitionKeyPath", string.Empty)
-                .Argument("idPath", string.Empty));
         }
 
         // Construction ///////////////////////////////////////////////////////

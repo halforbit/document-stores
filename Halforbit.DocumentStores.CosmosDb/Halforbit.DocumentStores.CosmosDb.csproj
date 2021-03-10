@@ -8,6 +8,7 @@
     <Product>Document Stores Cosmos DB</Product>
     <Copyright>Halforbit</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/halforbit/document-stores</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
