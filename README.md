@@ -23,7 +23,7 @@ Our document has a `Guid` **id property** named `PersonId`. Id properties can be
 
 ### Build a Document Store
 
-Use the fluent builder to describing and create your document stores:
+Use the fluent builder to describe and create your document stores:
 
 ```csharp
 IDocumentStore<Guid, Person> store = DocumentStore
