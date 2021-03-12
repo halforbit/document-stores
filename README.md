@@ -76,7 +76,7 @@ await foreach (var person in store.QueryAsync(q => q
 }
 ```
 
-### Delete a document from the store
+### Delete a document from a store
 
 You can delete a document with its key:
 
