@@ -158,6 +158,35 @@ namespace Halforbit.DocumentStores
             return Key<TId, JObject>(target, idPath);
         }
 
+        // Validation /////////////////////////////////////////////////////////
+
+        public static IDocumentStoreDescription<TPartitionKey, TId, TDocument> Validation<TPartitionKey, TId, TDocument, TValidator>(
+            this IDocumentStoreDescription<TPartitionKey, TId, TDocument> target,
+            TValidator documentValidator)
+            where TValidator : IDocumentValidator<TPartitionKey, TId, TDocument>
+        {
+            return new Builder<TPartitionKey, TId, TDocument>(
+                target.Root.Argument("documentValidator", documentValidator));
+        }
+
+        public static IDocumentStoreDescription<TId, TDocument> Validation<TId, TDocument, TValidator>(
+            this IDocumentStoreDescription<TId, TDocument> target,
+            TValidator documentValidator)
+            where TValidator : IDocumentValidator<string, TId, TDocument>
+        {
+            return new Builder<TId, TDocument>(
+                target.Root.Argument("documentValidator", documentValidator));
+        }
+
+        public static IDocumentStoreDescription<TDocument> Validation<TDocument, TValidator>(
+            this IDocumentStoreDescription<TDocument> target,
+            TValidator documentValidator)
+            where TValidator : IDocumentValidator<string, string, TDocument>
+        {
+            return new Builder<TDocument>(
+                target.Root.Argument("documentValidator", documentValidator));
+        }
+
         // Mock ///////////////////////////////////////////////////////////////
 
         public static INeedsMap MockInMemory(

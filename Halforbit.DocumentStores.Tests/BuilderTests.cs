@@ -34,7 +34,7 @@ namespace Halforbit.DocumentStores.Tests
         }
 
         [Fact]
-        public void Build_CosmosDb_PartitionKey_Lambda_Record()
+        public void Build_CosmosDb_PartitionKey_Lambda_Record_Validation()
         {
             var store = DocumentStore
                 .Describe()
@@ -44,6 +44,7 @@ namespace Halforbit.DocumentStores.Tests
                 .Container("container")
                 .Document<Person_String_Guid>()
                 .Key(d => d.LastName, d => d.PersonId)
+                .Validation(new PersonValidator_string_Guid())
                 .Build();
 
             Assert.IsType<CosmosDbDocumentStore<string, Guid, Person_String_Guid>>(store);
@@ -57,6 +58,8 @@ namespace Halforbit.DocumentStores.Tests
             Assert.Equal("/LastName", store.Field<string>("_partitionKeyPath"));
 
             Assert.Equal("/PersonId", store.Field<string>("_idPath"));
+
+            Assert.NotNull(store.Field<IDocumentValidator<string, Guid, Person_String_Guid>>("_documentValidator"));
         }
 
         [Fact]
@@ -86,7 +89,7 @@ namespace Halforbit.DocumentStores.Tests
         }
 
         [Fact]
-        public void Build_CosmosDb_IdPartitioned_Lambda_Record()
+        public void Build_CosmosDb_IdPartitioned_Lambda_Record_Validation()
         {
             var store = DocumentStore
                 .Describe()
@@ -96,6 +99,7 @@ namespace Halforbit.DocumentStores.Tests
                 .Container("container")
                 .Document<Person_String_Guid>()
                 .Key(d => d.PersonId)
+                .Validation(new PersonValidator_Guid())
                 .Build();
 
             Assert.IsType<CosmosDbDocumentStore<string, Guid, Person_String_Guid>>(store);
@@ -109,6 +113,8 @@ namespace Halforbit.DocumentStores.Tests
             Assert.Equal("/id", store.Field<string>("_partitionKeyPath"));
 
             Assert.Equal("/PersonId", store.Field<string>("_idPath"));
+
+            Assert.NotNull(store.Field<IDocumentValidator<string, Guid, Person_String_Guid>>("_documentValidator"));
         }
 
         [Fact]
@@ -134,6 +140,34 @@ namespace Halforbit.DocumentStores.Tests
             Assert.Equal(string.Empty, store.Field<string>("_partitionKeyPath"));
 
             Assert.Equal(string.Empty, store.Field<string>("_idPath"));
+        }
+
+        [Fact]
+        public void Build_CosmosDb_Singleton_Record_Validation()
+        {
+            var store = DocumentStore
+                .Describe()
+                .CosmosDb()
+                .ConnectionString("connection-string")
+                .Database("database")
+                .Container("container")
+                .Document<Person_String_Guid>()
+                .Validation(new PersonValidator())
+                .Build();
+
+            Assert.IsType<CosmosDbDocumentStore<string, string, Person_String_Guid>>(store);
+
+            Assert.Equal("connection-string", store.Field<string>("_connectionString"));
+
+            Assert.Equal("database", store.Field<string>("_database"));
+
+            Assert.Equal("container", store.Field<string>("_container"));
+
+            Assert.Equal(string.Empty, store.Field<string>("_partitionKeyPath"));
+
+            Assert.Equal(string.Empty, store.Field<string>("_idPath"));
+
+            Assert.NotNull(store.Field<IDocumentValidator<string, string, Person_String_Guid>>("_documentValidator"));
         }
 
         [Fact]
@@ -202,4 +236,13 @@ namespace Halforbit.DocumentStores.Tests
                 .GetValue(obj);
         }
     }
+
+    public class PersonValidator_string_Guid : DocumentValidatorBase<string, Guid, Person_String_Guid>
+    { }
+
+    public class PersonValidator_Guid : DocumentValidatorBase<Guid, Person_String_Guid>
+    { }
+
+    public class PersonValidator : DocumentValidatorBase<Person_String_Guid>
+    { }
 }

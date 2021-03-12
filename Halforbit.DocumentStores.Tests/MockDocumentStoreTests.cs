@@ -254,6 +254,7 @@ namespace Halforbit.DocumentStores.Tests
             return new MockDocumentStore<TPartitionKey, TId, TDocument>(
                 partitionKeyPath: partitionKeyPath,
                 idPath: idPath,
+                documentValidator: null,
                 documents: new List<TDocument>());
         }
 
@@ -264,6 +265,7 @@ namespace Halforbit.DocumentStores.Tests
             return new MockDocumentStore<string, TId, TDocument>(
                 partitionKeyPath: "/id",
                 idPath: idPath,
+                documentValidator: null,
                 documents: new List<TDocument>());
         }
 
@@ -275,6 +277,7 @@ namespace Halforbit.DocumentStores.Tests
             return new MockDocumentStore<TId, TId, TDocument>(
                 partitionKeyPath: partitionKeyPath ?? "/id",
                 idPath: idPath,
+                documentValidator: null,
                 documents: new List<TDocument>());
         }
 
@@ -284,6 +287,7 @@ namespace Halforbit.DocumentStores.Tests
             return new MockDocumentStore<string, string, TDocument>(
                 partitionKeyPath: string.Empty,
                 idPath: string.Empty,
+                documentValidator: null,
                 documents: new List<TDocument>());
         }
     }

@@ -14,18 +14,22 @@ namespace Halforbit.DocumentStores
     {
         readonly string _partitionKeyPath;
         readonly string _idPath;
+        readonly IDocumentValidator<TPartitionKey, TId, TDocument> _documentValidator;
         readonly ConcurrentDictionary<(TPartitionKey PartitionKey, TId Id), JObject> _documents;
         readonly bool _partitionKeyTypeMatchesIdType;
 
         public MockDocumentStore(
             string partitionKeyPath,
             string idPath,
+            IDocumentValidator<TPartitionKey, TId, TDocument> documentValidator = default,
             IEnumerable<TDocument> documents = default)
         {
             _partitionKeyPath = partitionKeyPath;
             
             _idPath = idPath;
-
+            
+            _documentValidator = documentValidator;
+            
             _documents = new ConcurrentDictionary<(TPartitionKey PartitionKey, TId Id), JObject>((documents ?? new List<TDocument>())
                 .Select(d => new KeyValuePair<(TPartitionKey PartitionKey, TId Id), JObject>(GetKey(d), JObject.FromObject(d))));
 
@@ -34,13 +38,21 @@ namespace Halforbit.DocumentStores
 
         public Task CreateStoreIfNotExistsAsync() => Task.CompletedTask;
 
-        public Task DeleteAsync(
+        public async Task DeleteAsync(
             TPartitionKey partitionKey, 
             TId id)
         {
-            _documents.TryRemove((partitionKey, id), out var _);
+            if (_documentValidator != null)
+            {
+                var validationErrors = await _documentValidator.ValidateDelete(partitionKey, id).ConfigureAwait(false);
 
-            return Task.CompletedTask;
+                if (validationErrors?.Any() ?? false)
+                {
+                    throw new DocumentValidationException(validationErrors);
+                }
+            }
+
+            _documents.TryRemove((partitionKey, id), out var _);
         }
 
         public Task<bool> ExistsAsync(
@@ -119,7 +131,7 @@ namespace Halforbit.DocumentStores
             throw new NotImplementedException();
         }
 
-        public Task UpsertAsync(TDocument document)
+        public async Task UpsertAsync(TDocument document)
         {
             var (_, id) = GetKey(document);
 
@@ -132,9 +144,17 @@ namespace Halforbit.DocumentStores
                 _idPath,
                 jObject);
 
-            _documents[(partitionKey, id)] = jObject;
+            if (_documentValidator != null)
+            {
+                var validationErrors = await _documentValidator.ValidatePut(partitionKey, id, document).ConfigureAwait(false);
 
-            return Task.CompletedTask;
+                if (validationErrors?.Any() ?? false)
+                {
+                    throw new DocumentValidationException(validationErrors);
+                }
+            }
+
+            _documents[(partitionKey, id)] = jObject;
         }
 
         static TResult CleanResultDocument<TResult>(TResult result)

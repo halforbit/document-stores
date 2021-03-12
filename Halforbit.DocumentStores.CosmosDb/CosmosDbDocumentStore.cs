@@ -21,6 +21,7 @@ namespace Halforbit.DocumentStores
         readonly string _container;
         readonly string _partitionKeyPath;
         readonly string _idPath;
+        readonly IDocumentValidator<TPartitionKey, TId, TDocument> _documentValidator;
         Lazy<Container> _containerInstance;
         readonly bool _partitionKeyTypeMatchesIdType;
         
@@ -29,7 +30,8 @@ namespace Halforbit.DocumentStores
             string database,
             string container,
             string partitionKeyPath,
-            string idPath)
+            string idPath,
+            IDocumentValidator<TPartitionKey, TId, TDocument> documentValidator = null)
         {
             _connectionString = !string.IsNullOrWhiteSpace(connectionString) ? 
                 connectionString : 
@@ -46,6 +48,8 @@ namespace Halforbit.DocumentStores
             _partitionKeyPath = partitionKeyPath;
 
             _idPath = idPath;
+            
+            _documentValidator = documentValidator;
 
             _containerInstance = new Lazy<Container>(() =>
             {
@@ -92,6 +96,16 @@ namespace Halforbit.DocumentStores
 
         public async Task DeleteAsync(TPartitionKey partitionKey, TId id)
         {
+            if (_documentValidator != null)
+            {
+                var validationErrors = await _documentValidator.ValidateDelete(partitionKey, id).ConfigureAwait(false);
+
+                if (validationErrors?.Any() ?? false)
+                {
+                    throw new DocumentValidationException(validationErrors);
+                }
+            }
+
             try
             {
                 var response = await _containerInstance.Value.DeleteItemAsync<TDocument>(
@@ -221,6 +235,16 @@ namespace Halforbit.DocumentStores
                 _partitionKeyPath,
                 _idPath,
                 jObject);
+
+            if (_documentValidator != null)
+            {
+                var validationErrors = await _documentValidator.ValidatePut(partitionKey, id, document).ConfigureAwait(false);
+
+                if (validationErrors?.Any() ?? false)
+                {
+                    throw new DocumentValidationException(validationErrors);
+                }
+            }
 
             try
             {
