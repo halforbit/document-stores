@@ -178,6 +178,7 @@ namespace Halforbit.DocumentStores.Tests
                 .MockInMemory()
                 .Document<JObject>()
                 .Key<string, Guid>("/LastName", "/PersonId")
+                .Documents(new[] { JObject.Parse($"{{ \"LastName\": \"Smith\", \"PersonId\": \"{Guid.NewGuid()}\" }}") })
                 .Build();
 
             Assert.IsType<MockDocumentStore<string, Guid, JObject>>(store);
@@ -188,13 +189,14 @@ namespace Halforbit.DocumentStores.Tests
         }
 
         [Fact]
-        public void Build_MockInMemory_IdPartitioned_JObject()
+        public void Build_MockInMemory_IdPartitioned_JObject_Documents()
         {
             var store = DocumentStore
                 .Describe()
                 .MockInMemory()
                 .Document<JObject>()
                 .Key<Guid>("/PersonId")
+                .Documents(new[] { JObject.Parse($"{{ \"PersonId\": \"{Guid.NewGuid()}\" }}") })
                 .Build();
 
             Assert.IsType<MockDocumentStore<string, Guid, JObject>>(store);
@@ -205,12 +207,13 @@ namespace Halforbit.DocumentStores.Tests
         }
 
         [Fact]
-        public void Build_MockInMemory_Singleton_JObject()
+        public void Build_MockInMemory_Singleton_JObject_Documents()
         {
             var store = DocumentStore
                 .Describe()
                 .MockInMemory()
                 .Document<JObject>()
+                .Documents(new[] { JObject.Parse("{}") })
                 .Build();
 
             Assert.IsType<MockDocumentStore<string, string, JObject>>(store);

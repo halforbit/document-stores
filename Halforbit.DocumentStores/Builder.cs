@@ -195,11 +195,25 @@ namespace Halforbit.DocumentStores
             return new Builder(target.Root.Type(typeof(MockDocumentStore<,,>)));
         }
 
-        public static INeedsMap Documents<TPartitionKey, TId, TDocument>(
+        public static IDocumentStoreDescription<TPartitionKey, TId, TDocument> Documents<TPartitionKey, TId, TDocument>(
             this IDocumentStoreDescription<TPartitionKey, TId, TDocument> target, 
             IEnumerable<TDocument> documents)
         {
-            return new Builder(target.Root.Argument("documents", documents));
+            return new Builder<TPartitionKey, TId, TDocument>(target.Root.Argument("documents", documents));
+        }
+
+        public static IDocumentStoreDescription<TId, TDocument> Documents<TId, TDocument>(
+            this IDocumentStoreDescription<TId, TDocument> target,
+            IEnumerable<TDocument> documents)
+        {
+            return new Builder<TId, TDocument>(target.Root.Argument("documents", documents));
+        }
+
+        public static IDocumentStoreDescription<TDocument> Documents<TDocument>(
+            this IDocumentStoreDescription<TDocument> target,
+            IEnumerable<TDocument> documents)
+        {
+            return new Builder<TDocument>(target.Root.Argument("documents", documents));
         }
 
         // Construction ///////////////////////////////////////////////////////

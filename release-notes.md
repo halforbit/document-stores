@@ -2,7 +2,13 @@
 
 ## Release Notes
 
-### 2021-3-12
+### 2021-03-26
+
+#### 1.0.16
+
+- Fix `Documents` builder methods for the mock in-memory document store.
+
+### 2021-03-12
 
 #### 1.0.14
 
