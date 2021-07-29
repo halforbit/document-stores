@@ -19,7 +19,7 @@ public record Person(
     string LastName);
 ```
 
-Our document has a `Guid` **id property** named `PersonId`. Id properties can be simple value types like `Guid`, `int`, and `string`. 
+Our document type has a `Guid` **key property** named `PersonId`. Key properties can be simple value types like `Guid`, `int`, and `string`. 
 
 For more information on keying, see [Keying with Halforbit Document Stores](keying.md).
 

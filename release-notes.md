@@ -4,6 +4,10 @@
 
 ### 2021-07-29
 
+#### 1.0.19
+
+- Minor document revisions.
+
 #### 1.0.18
 
 - Update some documentation styling.

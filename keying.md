@@ -27,18 +27,19 @@ Document databases have peculiar requirements that leak into the developer's wor
 
 ### The `id` Property
 
-Document databases require your documents to have a `string` property named `id`. When using Document Stores you do not need to worry about this. Document stores will automatically deal with the `id` requirements behind the scenes.
+Document databases require your documents to have a `string` property named `id`. When using Document Stores you do not need to worry about this. Document Stores will automatically deal with the `id` requirements behind the scenes.
 
-- **You do not need an `id` property on your document type.**
+**You do not need an `id` property on your document type.**
 
 ### Partition Keys in CosmosDb
 
-When you make a CosmosDb container, you are required to choose a **partition key**. Usually, you will want to use `/id` (which is the default) for your partition key. 
+When you make a CosmosDb container, you are required to choose a **partition key**. Usually, you will use `/id` (which is the default) for your partition key. 
 
-Unless you want an explicit partition key, document stores lets you ignore the concept of partitioning completely.
+Unless you want an explicit partition key, Document Stores lets you ignore the concept of partitioning completely.
 
-- **The partition key of your CosmosDb container should usually be `/id`.**
-- **You do not need a property for partition key on your document type.**
+**The partition key of your CosmosDb container should usually be `/id`.**
+
+**You do not need a property for partition key on your document type.**
 
 #### Explicit Partition Key
 
