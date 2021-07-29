@@ -2,6 +2,12 @@
 
 ## Release Notes
 
+### 2021-07-29
+
+#### 1.0.17
+
+- Added documentation around keying.
+
 ### 2021-03-26
 
 #### 1.0.16

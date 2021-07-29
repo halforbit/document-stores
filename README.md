@@ -21,6 +21,8 @@ public record Person(
 
 Our document has a `Guid` **id property** named `PersonId`. Id properties can be simple value types like `Guid`, `int`, and `string`. 
 
+For more information on keying, see [Keying with Halforbit Document Stores](keying.md).
+
 ### Build a Document Store
 
 Use the fluent builder to describe and create your document stores:
