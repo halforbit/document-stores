@@ -4,6 +4,10 @@
 
 ### 2021-07-29
 
+#### 1.0.18
+
+- Update some documentation styling.
+
 #### 1.0.17
 
 - Added documentation around keying.
