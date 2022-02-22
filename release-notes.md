@@ -2,6 +2,12 @@
 
 ## Release Notes
 
+### 2022-02-21
+
+#### 1.0.22
+
+- Added support for `Guid` as a partition key type.
+
 ### 2021-07-29
 
 #### 1.0.19
