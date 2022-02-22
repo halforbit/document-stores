@@ -1,4 +1,5 @@
-﻿using Halforbit.ObjectTools.DeferredConstruction;
+﻿using Halforbit.DocumentStores.Exceptions;
+using Halforbit.ObjectTools.DeferredConstruction;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -83,6 +84,13 @@ namespace Halforbit.DocumentStores
 
     public static class DocumentStoreBuilderExtensions
     {
+        static readonly HashSet<Type> _allowedPartitionKeyTypes = new HashSet<Type>(new[]
+        {
+            typeof(int),
+            typeof(string),
+            typeof(Guid)
+        });
+
         // Keying /////////////////////////////////////////////////////////////
 
         public static IDocumentStoreDescription<TDocument> Document<TDocument>(this INeedsMap target)
@@ -126,8 +134,17 @@ namespace Halforbit.DocumentStores
             string partitionKeyPath,
             string idPath)
         {
+            var partitionKeyType = typeof(TPartitionKey);
+
+            if (!_allowedPartitionKeyTypes.Contains(partitionKeyType))
+            {
+                throw new UnsupportedPartitionKeyTypeException(
+                    $"The partition key type of {partitionKeyType.Name} is not supported. " +
+                    $"Supported partition key types are: {string.Join(", ", _allowedPartitionKeyTypes)}");
+            }
+
             return new Builder<TPartitionKey, TId, TDocument>(target.Root
-                .TypeArguments(typeof(string), typeof(TId), typeof(TDocument))
+                .TypeArguments(partitionKeyType, typeof(TId), typeof(TDocument))
                 .Argument("partitionKeyPath", partitionKeyPath)
                 .Argument("idPath", idPath));
         }

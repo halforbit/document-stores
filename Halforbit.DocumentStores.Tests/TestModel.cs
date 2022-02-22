@@ -13,6 +13,13 @@ namespace Halforbit.DocumentStores.Tests
         string LastName,
         DateTime DateOfBirth);
 
+    public record Person_Guid_Guid(
+        Guid PersonId,
+        Guid AccountId,
+        string FirstName,
+        string LastName,
+        DateTime DateOfBirth);
+
     public record Person_Int_Int(
         int DepartmentId,
         int PersonId,

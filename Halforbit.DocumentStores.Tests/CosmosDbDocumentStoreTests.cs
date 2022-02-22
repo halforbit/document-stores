@@ -7,6 +7,8 @@ namespace Halforbit.DocumentStores.Tests
 {
     public class CosmosDbDocumentStoreTests
     {
+        const string _accountId = "4c040f6214f84b6bb39e134007418ef1";
+
         const string _id = "8992c74cc49546d5900f1e30b1df1cb3";
                 
         Person_String_Guid _stringGuidPersonA = new Person_String_Guid(
@@ -17,6 +19,20 @@ namespace Halforbit.DocumentStores.Tests
 
         Person_String_Guid _stringGuidPersonB = new Person_String_Guid(
             new Guid(_id),
+            "John",
+            "Smith",
+            new DateTime(1992, 02, 03, 00, 00, 00, DateTimeKind.Utc));
+
+        Person_Guid_Guid _guidGuidPersonA = new Person_Guid_Guid(
+            new Guid(_id),
+            new Guid(_accountId),
+            "Steve",
+            "Smith",
+            new DateTime(1994, 01, 02, 00, 00, 00, DateTimeKind.Utc));
+
+        Person_Guid_Guid _guidGuidPersonB = new Person_Guid_Guid(
+            new Guid(_id),
+            new Guid(_accountId),
             "John",
             "Smith",
             new DateTime(1992, 02, 03, 00, 00, 00, DateTimeKind.Utc));
@@ -52,22 +68,6 @@ namespace Halforbit.DocumentStores.Tests
         }
 
         [Fact]
-        public async Task Pk_Int_Id_Int_Doc_Record()
-        {
-            var store = GetPartitionKeyedStore<int, int, Person_Int_Int>(
-                containerName: "pk-int-id-int-doc-record",
-                partitionKeyPath: "/DepartmentId",
-                idPath: "/PersonId");
-
-            await UniversalIntegrationTests.TestPartitionKeyedDocumentStore(
-                store,
-                _intIntPersonA.DepartmentId,
-                _intIntPersonA.PersonId,
-                _intIntPersonA,
-                _intIntPersonB);
-        }
-
-        [Fact]
         public async Task Pk_String_Id_Guid_Doc_JObject()
         {
             var store = GetPartitionKeyedStore<string, Guid, JObject>(
@@ -82,6 +82,55 @@ namespace Halforbit.DocumentStores.Tests
                 JObject.FromObject(_stringGuidPersonA),
                 JObject.FromObject(_stringGuidPersonB),
                 (a, b) => a.ToString() == b.ToString());
+        }
+
+        [Fact]
+        public async Task Pk_Guid_Id_Guid_Doc_Record()
+        {
+            var store = GetPartitionKeyedStore<Guid, Guid, Person_Guid_Guid>(
+                containerName: "pk-guid-id-guid-doc-record",
+                partitionKeyPath: "/AccountId",
+                idPath: "/PersonId");
+
+            await UniversalIntegrationTests.TestPartitionKeyedDocumentStore(
+                store,
+                _guidGuidPersonA.AccountId,
+                _guidGuidPersonA.PersonId,
+                _guidGuidPersonA,
+                _guidGuidPersonB);
+        }
+
+        [Fact]
+        public async Task Pk_Guid_Id_Guid_Doc_JObject()
+        {
+            var store = GetPartitionKeyedStore<Guid, Guid, JObject>(
+                containerName: "pk-guid-id-guid-doc-jobject",
+                partitionKeyPath: "/AccountId",
+                idPath: "/PersonId");
+
+            await UniversalIntegrationTests.TestPartitionKeyedDocumentStore(
+                store,
+                _guidGuidPersonA.AccountId,
+                _guidGuidPersonA.PersonId,
+                JObject.FromObject(_guidGuidPersonA),
+                JObject.FromObject(_guidGuidPersonB),
+                (a, b) => a.ToString() == b.ToString());
+        }
+
+        [Fact]
+        public async Task Pk_Int_Id_Int_Doc_Record()
+        {
+            var store = GetPartitionKeyedStore<int, int, Person_Int_Int>(
+                containerName: "pk-int-id-int-doc-record",
+                partitionKeyPath: "/DepartmentId",
+                idPath: "/PersonId");
+
+            await UniversalIntegrationTests.TestPartitionKeyedDocumentStore(
+                store,
+                _intIntPersonA.DepartmentId,
+                _intIntPersonA.PersonId,
+                _intIntPersonA,
+                _intIntPersonB);
         }
 
         [Fact]

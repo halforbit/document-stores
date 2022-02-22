@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Halforbit.DocumentStores.Exceptions;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Reflection;
 using Xunit;
@@ -34,7 +35,7 @@ namespace Halforbit.DocumentStores.Tests
         }
 
         [Fact]
-        public void Build_CosmosDb_PartitionKey_Lambda_Record_Validation()
+        public void Build_CosmosDb_PartitionKey_Lambda_Record_Pk_String_Validation()
         {
             var store = DocumentStore
                 .Describe()
@@ -60,6 +61,49 @@ namespace Halforbit.DocumentStores.Tests
             Assert.Equal("/PersonId", store.Field<string>("_idPath"));
 
             Assert.NotNull(store.Field<IDocumentValidator<string, Guid, Person_String_Guid>>("_documentValidator"));
+        }
+
+        [Fact]
+        public void Build_CosmosDb_PartitionKey_Lambda_Record_Pk_Guid_Validation()
+        {
+            var store = DocumentStore
+                .Describe()
+                .CosmosDb()
+                .ConnectionString("connection-string")
+                .Database("database")
+                .Container("container")
+                .Document<Person_Guid_Guid>()
+                .Key(d => d.AccountId, d => d.PersonId)
+                .Validation(new PersonValidator_Guid_Guid())
+                .Build();
+
+            Assert.IsType<CosmosDbDocumentStore<Guid, Guid, Person_Guid_Guid>>(store);
+
+            Assert.Equal("connection-string", store.Field<string>("_connectionString"));
+
+            Assert.Equal("database", store.Field<string>("_database"));
+
+            Assert.Equal("container", store.Field<string>("_container"));
+
+            Assert.Equal("/AccountId", store.Field<string>("_partitionKeyPath"));
+
+            Assert.Equal("/PersonId", store.Field<string>("_idPath"));
+
+            Assert.NotNull(store.Field<IDocumentValidator<Guid, Guid, Person_Guid_Guid>>("_documentValidator"));
+        }
+
+        [Fact]
+        public void Build_CosmosDb_PartitionKey_Lambda_Record_Pk_Invalid_Fails()
+        {
+            Assert.Throws<UnsupportedPartitionKeyTypeException>(() => DocumentStore
+                .Describe()
+                .CosmosDb()
+                .ConnectionString("connection-string")
+                .Database("database")
+                .Container("container")
+                .Document<Person_Guid_Guid>()
+                .Key(d => d.DateOfBirth, d => d.PersonId)
+                .Build());
         }
 
         [Fact]
@@ -241,6 +285,9 @@ namespace Halforbit.DocumentStores.Tests
     }
 
     public class PersonValidator_string_Guid : DocumentValidatorBase<string, Guid, Person_String_Guid>
+    { }
+
+    public class PersonValidator_Guid_Guid : DocumentValidatorBase<Guid, Guid, Person_Guid_Guid>
     { }
 
     public class PersonValidator_Guid : DocumentValidatorBase<Guid, Person_String_Guid>
