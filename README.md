@@ -1,12 +1,32 @@
 # Halforbit Document Stores
 
-Document Stores let you work with document databases in a way that is quick, easy, and reliable.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) &nbsp;[![Build status](https://ci.appveyor.com/api/projects/status/jncopu91kmdi38p5?svg=true)](https://ci.appveyor.com/project/halforbit/document-stores) &nbsp;[![Nuget Package](https://img.shields.io/nuget/v/Halforbit.DocumentStores.svg)](#nuget-packages)
+
+Document Stores lets you easily create queryable stores with strongly-typed keying over document databases like CosmosDb, without the need for high-ceremony repository patterns or bare-metal integrations.
+
+## Features
+
+- **Queryable:** Document stores let you use `IQueryable` or SQL language to query for strongly- or dynamically-typed documents.
+  
+- **Easy Strongly-Typed Keying:** Define partition keys and document IDs as properties using simple lambda expressions.
+
+- **No Repository Pattern Needed:** Ditch the hand-made, error-prone, high-ceremony repository implementations.
 
 ## Getting Started
 
-Add a NuGet reference to your project for your database technology:
+1. **Install NuGet Packages:** Install the NuGet packages for your desired storage providers and formats:
+    ```powershell
+    Install-Package Halforbit.DocumentStores.CosmosDb
+    ```
+    See the [NuGet Packages](#nuget-packages) section below for a list of available NuGet packages and what storage providers and formats they support.
 
-[Halforbit.DocumentStores.CosmosDb](https://www.nuget.org/packages/Halforbit.DocumentStores.CosmosDb)
+2. **Define Your Stores:** Use the `DocumentStore` type to create ad-hoc stores, or define them as properties on a data context.
+   
+3. **Use Your Stores:** Persist, retrieve, and query data with your stores.
+
+A store can be defined as a property of a **data context**, or created **ad-hoc** and stored in a local variable.
+
+## Example Usage
 
 ### What do you want to store?
 
@@ -85,3 +105,19 @@ You can delete a document with its key:
 ```csharp
 await store.DeleteAsync(personId);
 ```
+
+
+<a name="nuget-packages"></a>
+
+## NuGet Packages
+
+The following NuGet packages are provided, parted out by their dependencies. Install the ones that contain the storage providers and formats you wish to use.
+
+| Storage Provider or Format | NuGet Package |
+|----------------------------|---------------|
+| (Base Library) | [`Halforbit.DocumentStores`](https://www.nuget.org/packages/Halforbit.DocumentStores) |
+| Azure CosmosDb | [`Halforbit.DocumentStores.CosmosDb`](https://www.nuget.org/packages/Halforbit.DocumentStores.CosmosDb) |
+
+## License
+
+Data Stores is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
